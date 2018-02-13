@@ -1,3 +1,3 @@
 # vue-try
 
-# Vue starter with pug and sass
+Vue starter with pug and sass
