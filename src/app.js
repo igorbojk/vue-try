@@ -1,19 +1,7 @@
 import Vue from 'vue';
-// Components
-import Hello from './components/hello.vue';
-
+import App from './App.vue';
 
 new Vue({
     el: '#vue-app',
-    components: {
-        hello: Hello,
-    },
-    data: {
-        test: 'test',
-    },
-    methods: {
-
-    },
-    created: function () {
-    },
+    render: h => h(App),
 });
