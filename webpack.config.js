@@ -2,9 +2,13 @@
 
 let path = require('path');
 let webpack = require('webpack');
+let HtmlWebpackPlugin = require('html-webpack-plugin');
+let ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 let entryPoint = './src/app.js';
-let outputPath = path.resolve(__dirname, './build');
+let cssAssets = './src/assets/index.js';
+let materializeJs = './node_modules/materialize-css/dist/js/materialize.min.js';
+let outputPath = path.resolve(__dirname, './public');
 let fileName = 'app.js';
 
 let plugins = [];
@@ -31,7 +35,7 @@ if (env === 'production') {
 // Main webpack config
 module.exports = {
     entry: {
-        app: [ entryPoint ]
+        app: [ entryPoint, materializeJs , cssAssets]
     },
     output: {
         path: outputPath,
@@ -50,13 +54,61 @@ module.exports = {
             {
                 test: /\.vue$/,
                 loader: 'vue-loader'
+            },
+            { // sass / scss loader for webpack
+                test: /\.(sass|scss|css)$/,
+                use: ExtractTextPlugin.extract(['css-loader', 'sass-loader'])
+            },
+            {
+                test: /\.(png|svg|jpg|gif)$/,
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            limit: 5000,
+                            name: 'assets/images/[hash].[name].[ext]'
+                        }
+                    }
+                ]
+            },
+            {
+                test: /\.(woff|woff2|eot|ttf|otf)$/,
+                use: [
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            limit: 5000,
+                            name: 'assets/fonts/[hash].[name].[ext]'
+                        }
+                    }
+                ]
             }
         ]
     },
     resolve: {
         alias: {
-            'vue$': 'vue/dist/vue.esm.js'  // Resolving the vue var for standalone build
+            'vue$': 'vue/dist/vue.esm.js',  // Resolving the vue var for standalone build
         }
     },
-    plugins // set the previously defined plugins
+    plugins: [
+        new HtmlWebpackPlugin({
+            filename: 'index.html',
+            template: path.resolve(__dirname, 'src', 'index.html'),
+            hash: true
+        }),
+        new ExtractTextPlugin({ // define where to save the file
+            filename: 'main.bundle.css',
+            allChunks: true,
+        }),
+    ],
+    devServer: {
+        port: 8085,
+        contentBase: path.join(__dirname, 'public'),
+        compress: true,
+        historyApiFallback: true,
+        stats: {
+            cached: false,
+            colors: true
+        }
+    },
 };
